@@ -188,6 +188,30 @@ function startModelLoad() {
     });
 }
 
+/* ---------- help buttons + first-visit how-to ---------- */
+
+function setupHelp() {
+  for (const btn of document.querySelectorAll('button.help')) {
+    btn.addEventListener('click', () => {
+      const hint = document.getElementById(btn.getAttribute('aria-controls'));
+      const open = hint.hidden;
+      hint.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    });
+  }
+
+  // Open the how-to on the first visit only; storage may be unavailable, so never depend on it.
+  const howto = document.getElementById('howto');
+  try {
+    if (!localStorage.getItem('howto-seen')) {
+      howto.open = true;
+      localStorage.setItem('howto-seen', '1');
+    }
+  } catch {
+    howto.open = true;
+  }
+}
+
 /* ---------- wiring ---------- */
 
 els.doc.value = SAMPLE_DOCUMENT;
@@ -204,5 +228,6 @@ for (const q of SAMPLE_QUESTIONS) {
 
 showEmpty(els.kw, 'Ask a question to see the top 3 chunks.');
 showEmpty(els.em, 'Ask a question to see the top 3 chunks.');
+setupHelp();
 applyChunking();
 startModelLoad();

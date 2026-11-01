@@ -110,15 +110,6 @@ textarea {
   margin-top: 14px;
 }
 
-.controls label {
-  display: block;
-}
-
-.controls span {
-  display: block;
-  margin-bottom: 4px;
-  font-size: 0.92rem;
-}
 
 input[type='range'] {
   width: 100%;
@@ -332,4 +323,98 @@ mark {
   .ask-form button {
     padding: 0 14px;
   }
+}
+
+/* ---------- help: how-to section, ? buttons, hints ---------- */
+
+.howto {
+  margin-bottom: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.howto summary {
+  padding: 12px 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.howto-body {
+  padding: 0 16px 8px;
+  font-size: 0.95rem;
+}
+
+.howto-body h2 {
+  margin: 16px 0 6px;
+  font-size: 1rem;
+}
+
+.howto-body p,
+.howto-body ol,
+.howto-body ul {
+  margin: 0 0 8px;
+}
+
+.howto-body li {
+  margin-bottom: 4px;
+}
+
+.control-head,
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.panel-head h2,
+.panel-head h3 {
+  margin-bottom: 8px;
+}
+
+.control-head label {
+  font-size: 0.92rem;
+}
+
+.help,
+.help-demo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  flex: none;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.help[aria-expanded='true'] {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+.hint {
+  margin: 4px 0 10px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.hint[hidden] {
+  display: none;
+}
+
+.swatch.picked-sw {
+  background: transparent;
+  border: 2px solid var(--accent);
 }

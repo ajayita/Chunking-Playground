@@ -17,6 +17,46 @@
         Paste a document, change the chunk size and overlap, ask a question, and see which chunks
         get retrieved and why.
       </p>
+
+      <details id="howto" class="howto">
+        <summary>How to use this &amp; about</summary>
+        <div class="howto-body">
+          <h2>The idea</h2>
+          <p>
+            Retrieval-augmented generation (RAG) apps don't feed a whole document to an AI. They
+            cut it into small pieces called <strong>chunks</strong>, find the chunks most relevant
+            to a question, and hand only those over. How you cut changes what gets found. This page
+            lets you change the cut and watch the effect.
+          </p>
+
+          <h2>How to use it</h2>
+          <ol>
+            <li><strong>Pick a document.</strong> A sample about honeybees is loaded. Paste your own over it any time.</li>
+            <li><strong>Move the sliders.</strong> Watch the colours in step 2 shift to show where each chunk starts and ends.</li>
+            <li><strong>Ask a question.</strong> Type one, or click a sample question.</li>
+            <li><strong>Compare the two columns.</strong> Each shows the top 3 chunks, found two different ways, with a score for each.</li>
+          </ol>
+          <p>Look for the <span class="help-demo">?</span> buttons: each one explains the thing next to it.</p>
+
+          <h2>Things to try</h2>
+          <ul>
+            <li>Set chunk size to 50 and ask a question. The answer gets split across chunks, so no single chunk holds it.</li>
+            <li>Now raise the overlap. Neighbouring chunks share text, so a sentence cut at one edge appears whole in the next chunk.</li>
+            <li>Ask "How do bees cool the hive?" The text says "beat their wings" and "evaporation", not "cool". Compare how the two columns cope.</li>
+          </ul>
+
+          <h2>About</h2>
+          <p>
+            Everything runs in your browser: no server, no account, no API key. Your text never
+            leaves your device. The one download is a small embedding model (about 23 MB, from
+            Hugging Face), fetched on your first visit and cached after that.
+          </p>
+          <p>
+            This tool only <em>retrieves</em> chunks. It deliberately doesn't write an answer from
+            them, so no language model is involved.
+          </p>
+        </div>
+      </details>
     </header>
 
     <main>
@@ -24,30 +64,68 @@
         <h2 id="doc-h">1. Your document</h2>
         <textarea id="doc" rows="10" spellcheck="false" aria-label="Document text"></textarea>
         <div class="controls">
-          <label>
-            <span>Chunk size: <output id="size-out"></output> characters</span>
+          <div class="control">
+            <div class="control-head">
+              <label for="size">Chunk size: <output id="size-out"></output> characters</label>
+              <button type="button" class="help" aria-expanded="false" aria-controls="help-size" aria-label="What does chunk size do?">?</button>
+            </div>
             <input id="size" type="range" min="50" max="2000" step="10" value="400" />
-          </label>
-          <label>
-            <span>Overlap: <output id="overlap-out"></output> characters</span>
+            <p class="hint" id="help-size" hidden>
+              How long each chunk is. <strong>Small chunks</strong> are precise, but they cut ideas
+              into fragments and lose context. <strong>Large chunks</strong> keep context, but one
+              chunk then mixes several topics, which blurs matching. The embedding model used here
+              also ignores everything past roughly 1,000 characters of a chunk, so very large
+              chunks are partly invisible to it.
+            </p>
+          </div>
+          <div class="control">
+            <div class="control-head">
+              <label for="overlap">Overlap: <output id="overlap-out"></output> characters</label>
+              <button type="button" class="help" aria-expanded="false" aria-controls="help-overlap" aria-label="What does overlap do?">?</button>
+            </div>
             <input id="overlap" type="range" min="0" max="360" step="5" value="50" />
-          </label>
+            <p class="hint" id="help-overlap" hidden>
+              How much text each chunk repeats from the end of the previous one. Without overlap, a
+              sentence that straddles a boundary is split in two and neither half makes full sense.
+              With overlap, it appears whole in at least one chunk. The cost: more chunks, and
+              near-duplicate results. It can't reach the chunk size.
+            </p>
+          </div>
         </div>
         <p id="stats" class="stats" aria-live="polite"></p>
       </section>
 
       <section class="panel" aria-labelledby="chunks-h">
-        <h2 id="chunks-h">2. Where the chunks fall</h2>
+        <div class="panel-head">
+          <h2 id="chunks-h">2. Where the chunks fall</h2>
+          <button type="button" class="help" aria-expanded="false" aria-controls="help-chunks" aria-label="How do I read this view?">?</button>
+        </div>
+        <p class="hint" id="help-chunks" hidden>
+          This is your document, cut up. Chunks alternate between two colours so you can see where
+          one ends and the next begins. Where two chunks share text (the overlap), that text is
+          shown in a third colour. After you search, chunks that were retrieved get a blue outline.
+          Chunks are cut at an exact character count, so a cut can land mid-word. That is how simple
+          fixed-size chunking behaves.
+        </p>
         <p class="legend">
           <span class="swatch a"></span>even chunk
           <span class="swatch b"></span>odd chunk
-          <span class="swatch ov"></span>overlap (text that appears in two chunks)
+          <span class="swatch ov"></span>overlap
+          <span class="swatch picked-sw"></span>retrieved
         </p>
         <div id="doc-view" class="doc-view" tabindex="0" aria-label="Document split into chunks"></div>
       </section>
 
       <section class="panel" aria-labelledby="ask-h">
-        <h2 id="ask-h">3. Ask a question</h2>
+        <div class="panel-head">
+          <h2 id="ask-h">3. Ask a question</h2>
+          <button type="button" class="help" aria-expanded="false" aria-controls="help-ask" aria-label="What happens when I search?">?</button>
+        </div>
+        <p class="hint" id="help-ask" hidden>
+          Your question is compared against every chunk in two different ways, and each way returns
+          its 3 best chunks. Change the sliders after searching and the results update, so you can
+          see how chunking changes what is found.
+        </p>
         <form id="ask-form" class="ask-form">
           <input id="question" type="text" placeholder="Ask something about the document…" autocomplete="off" aria-label="Question" />
           <button type="submit">Search</button>
@@ -56,18 +134,41 @@
 
         <div class="results-grid">
           <div class="results-col">
-            <h3>Keyword search <small>(BM25)</small></h3>
+            <div class="panel-head">
+              <h3>Keyword search <small>(BM25)</small></h3>
+              <button type="button" class="help" aria-expanded="false" aria-controls="help-kw" aria-label="How do I read keyword results?">?</button>
+            </div>
             <p class="note">
               Keyword search matches exact words: it finds chunks containing the same words as your
               question, and has no idea that different words can mean the same thing.
             </p>
+            <p class="hint" id="help-kw" hidden>
+              <strong>Score:</strong> BM25 adds up points for each question word found in a chunk.
+              Rare words earn more than common ones, repeats help with diminishing returns, and
+              shorter chunks get a small boost. There's no maximum, so only compare scores within
+              one search; the bar is relative to the top result.<br />
+              <strong>Highlighted words</strong> are the exact matches that earned the score. Words
+              like "the" and "of" are ignored, and "bee" does not match "bees" because there is no
+              word-stem handling. No highlights means no match.
+            </p>
             <div id="kw-results" class="results"></div>
           </div>
           <div class="results-col">
-            <h3>Meaning search <small>(embeddings)</small></h3>
+            <div class="panel-head">
+              <h3>Meaning search <small>(embeddings)</small></h3>
+              <button type="button" class="help" aria-expanded="false" aria-controls="help-em" aria-label="How do I read meaning results?">?</button>
+            </div>
             <p class="note">
               Embeddings match meaning: your question and every chunk become lists of numbers, and
               the closest ones win, even when they share no words at all.
+            </p>
+            <p class="hint" id="help-em" hidden>
+              <strong>Score:</strong> cosine similarity between the question's numbers and the
+              chunk's numbers, from about 0 (unrelated) to 1 (same meaning). The bar shows the
+              score on that scale. Exact values matter less than the ranking.<br />
+              <strong>No highlighted words</strong>, because the match isn't about words. It may pick
+              a chunk that shares none of your words, which keyword search can never do. It can also
+              pick something merely on the same topic, so check the text.
             </p>
             <div id="model-status" class="model-status" role="status"></div>
             <div id="em-results" class="results"></div>
