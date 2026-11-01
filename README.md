@@ -49,6 +49,10 @@ pnpm build
 
 Version 1.0.0 (see [CHANGELOG.md](CHANGELOG.md)). See [CONTRIBUTING.md](CONTRIBUTING.md) if you'd like to help.
 
+## Credits
+
+Made by [S. Teniola Ajayi](https://ajayiot.com). Visual system and fonts (Syne, Instrument Sans, IBM Plex Mono, all under the SIL Open Font License) are described in [public/fonts/LICENSES.md](public/fonts/LICENSES.md).
+
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE) © S. Teniola Ajayi

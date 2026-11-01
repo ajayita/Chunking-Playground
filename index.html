@@ -7,25 +7,46 @@
       name="description"
       content="Paste a document, change chunk size and overlap, ask a question, and see exactly which chunks get retrieved and why."
     />
+    <meta name="author" content="S. Teniola Ajayi" />
     <title>Chunking Playground</title>
+    <link rel="icon" type="image/svg+xml" href="/mark.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preload" href="/fonts/Syne-Variable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/InstrumentSans-Variable.woff2" as="font" type="font/woff2" crossorigin />
+    <script>
+      // Set the theme before first paint (no flash): saved choice, else the system preference.
+      (function () {
+        var t;
+        try { t = localStorage.getItem('theme'); } catch (e) {}
+        if (t !== 'paper' && t !== 'night') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'paper';
+        document.documentElement.setAttribute('data-theme', t);
+      })();
+    </script>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
     <header class="site-header">
-      <h1>Chunking Playground</h1>
-      <p class="tagline">
+      <div class="topbar">
+        <a class="brand" href="https://ajayiot.com" rel="noopener" aria-label="S. Teniola Ajayi, ajayiot.com">
+          <img class="lockup lockup--paper" src="/lockup.svg" alt="S. Teniola Ajayi" />
+          <img class="lockup lockup--night" src="/lockup-reversed.svg" alt="" />
+        </a>
+        <button type="button" id="guide-toggle" class="guide-toggle st-btn st-btn--outline st-btn--sm" aria-expanded="false" aria-controls="guide">How to use &amp; about</button>
+      </div>
+      <p class="st-kicker st-kicker--plain">RAG basics · Interactive demo</p>
+      <h1 class="headline">Chunking Playground.</h1>
+      <p class="lede tagline">
         Paste a document, change the chunk size and overlap, ask a question, and see which chunks
         get retrieved and why.
       </p>
-      <button type="button" id="guide-toggle" class="guide-toggle" aria-expanded="false" aria-controls="guide">How to use &amp; about</button>
-    
     </header>
 
     <div class="layout">
       <main>
       <section class="panel" aria-labelledby="doc-h">
-        <h2 id="doc-h">1. Your document</h2>
-        <textarea id="doc" rows="10" spellcheck="false" aria-label="Document text"></textarea>
+        <p class="st-kicker st-kicker--plain">Step 1 · Document</p>
+        <h2 id="doc-h" class="title">Your document.</h2>
+        <textarea id="doc" class="st-input st-textarea" rows="10" spellcheck="false" aria-label="Document text"></textarea>
         <div class="controls">
           <div class="control">
             <div class="control-head">
@@ -59,8 +80,9 @@
       </section>
 
       <section class="panel" aria-labelledby="chunks-h">
+        <p class="st-kicker st-kicker--plain">Step 2 · Chunk map</p>
         <div class="panel-head">
-          <h2 id="chunks-h">2. Where the chunks fall</h2>
+          <h2 id="chunks-h" class="title">Where the chunks fall.</h2>
           <button type="button" class="help" aria-expanded="false" aria-controls="help-chunks" aria-label="How do I read this view?">?</button>
         </div>
         <p class="hint" id="help-chunks" hidden>
@@ -80,8 +102,9 @@
       </section>
 
       <section class="panel" aria-labelledby="ask-h">
+        <p class="st-kicker st-kicker--plain">Step 3 · Search</p>
         <div class="panel-head">
-          <h2 id="ask-h">3. Ask a question</h2>
+          <h2 id="ask-h" class="title">Ask a question.</h2>
           <button type="button" class="help" aria-expanded="false" aria-controls="help-ask" aria-label="What happens when I search?">?</button>
         </div>
         <p class="hint" id="help-ask" hidden>
@@ -90,8 +113,8 @@
           see how chunking changes what is found.
         </p>
         <form id="ask-form" class="ask-form">
-          <input id="question" type="text" placeholder="Ask something about the document…" autocomplete="off" aria-label="Question" />
-          <button type="submit">Search</button>
+          <input id="question" class="st-input" type="text" placeholder="Ask something about the document…" autocomplete="off" aria-label="Question" />
+          <button type="submit" class="st-btn st-btn--primary">Search</button>
         </form>
         <p class="chips" id="chips" aria-label="Sample questions"></p>
         <p class="note" id="chips-hint" hidden>The sample questions only fit the sample document. Type your own question about your text.</p>
@@ -219,7 +242,11 @@
                 JavaScript. Only the embedding model comes from a library
                 (<a href="https://github.com/huggingface/transformers.js" target="_blank" rel="noopener">Transformers.js</a>).
               </p>
-              <p class="muted">Version <span class="version"></span> · MIT licence</p>
+              <p>
+                Made by <a href="https://ajayiot.com" rel="noopener">S. Teniola Ajayi <span class="st-arrow">↗</span></a>
+                (ajayiot.com). Open source under the MIT licence.
+              </p>
+              <p class="muted data">Version <span class="version"></span></p>
             </section>
           </div>
         </aside>
@@ -227,8 +254,19 @@
     <div id="backdrop" class="backdrop" hidden></div>
 
     <footer class="site-footer">
-      Runs entirely in your browser. No server, no API key. Retrieval only: nothing here generates
-      answers. <span class="muted">v<span class="version"></span></span>
+      <div class="footer-inner">
+        <p class="small">
+          Runs entirely in your browser. No server, no API key. Retrieval only: nothing here
+          generates answers.
+        </p>
+        <p class="small">
+          Made by <a href="https://ajayiot.com" rel="noopener">S. Teniola Ajayi <span class="st-arrow">↗</span></a>
+        </p>
+        <p class="data">
+          v<span class="version"></span> · MIT licence ·
+          <button type="button" id="theme-toggle" class="st-btn st-btn--link" aria-label="Switch colour theme">Theme</button>
+        </p>
+      </div>
     </footer>
 
     <script type="module" src="/src/main.js"></script>

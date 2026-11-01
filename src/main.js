@@ -207,6 +207,28 @@ function setupHelp() {
   }
 }
 
+/* ---------- theme toggle (Paper / Night) ---------- */
+
+function setupTheme() {
+  const btn = $('theme-toggle');
+  const root = document.documentElement;
+  const label = () => {
+    const night = root.getAttribute('data-theme') === 'night';
+    btn.textContent = night ? 'Theme: Night' : 'Theme: Paper';
+  };
+  btn.addEventListener('click', () => {
+    const next = root.getAttribute('data-theme') === 'night' ? 'paper' : 'night';
+    root.setAttribute('data-theme', next);
+    try {
+      localStorage.setItem('theme', next);
+    } catch {
+      /* storage unavailable: the choice just won't persist */
+    }
+    label();
+  });
+  label();
+}
+
 /* ---------- guide panel: tabs + mobile drawer ---------- */
 
 function setupGuide() {
@@ -260,12 +282,13 @@ els.form.addEventListener('submit', (e) => {
   ask(els.question.value);
 });
 for (const q of SAMPLE_QUESTIONS) {
-  els.chips.append(h('button', { type: 'button', className: 'chip', textContent: q, onclick: () => ask(q) }));
+  els.chips.append(h('button', { type: 'button', className: 'st-btn st-btn--outline st-btn--sm', textContent: q, onclick: () => ask(q) }));
 }
 
 showEmpty(els.kw, 'Ask a question to see the top 3 chunks.');
 showEmpty(els.em, 'Ask a question to see the top 3 chunks.');
 setupHelp();
 setupGuide();
+setupTheme();
 applyChunking();
 startModelLoad();

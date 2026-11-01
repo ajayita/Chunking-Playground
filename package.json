@@ -5,6 +5,11 @@
   "type": "module",
   "description": "Paste a document, change chunk size and overlap, ask a question, and see which chunks get retrieved and why.",
   "license": "MIT",
+  "author": {
+    "name": "S. Teniola Ajayi",
+    "url": "https://ajayiot.com"
+  },
+  "homepage": "https://ajayiot.com",
   "packageManager": "pnpm@12.16.1",
   "scripts": {
     "dev": "vite",
@@ -13,7 +18,9 @@
     "test": "node --test \"test/*.test.js\""
   },
   "dependencies": {
-    "@huggingface/transformers": "^4.3.2"
+    "@huggingface/transformers": "^4.3.2",
+    "fflate": "^0.8.3",
+    "pdfjs-dist": "^6.4.299"
   },
   "devDependencies": {
     "vite": "^8.3.5"
