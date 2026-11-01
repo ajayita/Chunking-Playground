@@ -2,6 +2,13 @@
 
 Versioning stays at 1.x until a major change.
 
+## 1.1.0
+
+- Upload PDF, DOCX, ODT, TXT or Markdown files, or drop them on the text box. Text is extracted in the browser; legacy `.doc` is rejected with a hint to save as .docx
+- "Reset to sample" button; sample questions only show while the sample document is loaded
+- New visual system (Paper and Night themes, self-hosted fonts) and attribution to S. Teniola Ajayi
+- Parsers load on demand: nothing extra downloads until a file is chosen (PDF support is about 1.7 MB raw)
+
 ## 1.0.0
 
 First release.

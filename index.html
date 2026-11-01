@@ -47,6 +47,13 @@
         <p class="st-kicker st-kicker--plain">Step 1 · Document</p>
         <h2 id="doc-h" class="title">Your document.</h2>
         <textarea id="doc" class="st-input st-textarea" rows="10" spellcheck="false" aria-label="Document text"></textarea>
+        <div class="doc-tools">
+          <input id="file" type="file" hidden />
+          <button type="button" id="upload-btn" class="st-btn st-btn--outline st-btn--sm">Upload file</button>
+          <button type="button" id="reset-btn" class="st-btn st-btn--link">Reset to sample</button>
+          <span class="note">PDF, DOCX, ODT, TXT or Markdown. Read in your browser; nothing is uploaded anywhere.</span>
+        </div>
+        <p id="file-status" class="note" role="status" aria-live="polite"></p>
         <div class="controls">
           <div class="control">
             <div class="control-head">
@@ -184,7 +191,7 @@
               </p>
               <h2>How to use it</h2>
               <ol>
-                <li><strong>Pick a document.</strong> A sample about honeybees is loaded. Paste your own over it any time.</li>
+                <li><strong>Pick a document.</strong> A sample about honeybees is loaded. Paste your own text over it, or upload a PDF, DOCX, ODT, TXT or Markdown file.</li>
                 <li><strong>Move the sliders.</strong> Watch the colours in step 2 shift to show where each chunk starts and ends.</li>
                 <li><strong>Ask a question.</strong> Type one, or click a sample question.</li>
                 <li><strong>Compare the two columns.</strong> Each shows the top 3 chunks, found two different ways, with a score for each.</li>
@@ -202,6 +209,7 @@
               <h2>What it does</h2>
               <ul class="features">
                 <li><strong>Paste any text.</strong> A sample document is preloaded so it works straight away.</li>
+                <li><strong>Upload a file:</strong> PDF, DOCX, ODT, TXT or Markdown, or drop it onto the text box. The text is extracted in your browser, and you can edit it afterwards.</li>
                 <li><strong>Chunk size slider</strong> (50–2,000 characters).</li>
                 <li><strong>Overlap slider</strong>, in characters.</li>
                 <li><strong>Chunk map:</strong> your document coloured by chunk, with overlaps in a third colour.</li>
@@ -220,7 +228,7 @@
               <h2>What it doesn't do</h2>
               <ul>
                 <li>Generate answers. It only retrieves chunks, so no language model is involved.</li>
-                <li>Read PDFs or other files. Paste text instead.</li>
+                <li>Read old-style <code>.doc</code> files (save as .docx first) or scanned PDFs, which are just images with no text to extract.</li>
               </ul>
             </section>
 

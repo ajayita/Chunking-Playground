@@ -10,9 +10,9 @@ Most RAG tutorials hide chunking behind a default setting. This playground makes
 
 Everything runs in your browser. No server, no API key.
 
-## Features (v1)
+## Features
 
-- Paste any document (a sample is preloaded)
+- Paste any document (a sample is preloaded), or upload a PDF, DOCX, ODT, TXT or Markdown file
 - Chunk size and overlap sliders, in characters
 - Chunks highlighted in the document with alternating colours; overlaps in a third colour
 - Chunk stats: total count and average size
@@ -23,13 +23,14 @@ Everything runs in your browser. No server, no API key.
 - A guide panel beside the app (How to use, Features, About), which becomes a drawer on mobile
 - A `?` hint on every control
 
-Retrieval only: there is deliberately no answer-generation step, so no LLM is needed. Not in v1: PDF or file upload (paste text instead).
+Retrieval only: there is deliberately no answer-generation step, so no LLM is needed. Not supported: legacy `.doc` files and scanned PDFs (no OCR).
 
 ## Stack
 
 - [Vite](https://vite.dev) + vanilla JS, HTML and CSS
 - [`@huggingface/transformers`](https://github.com/huggingface/transformers.js) running `Xenova/all-MiniLM-L6-v2` (about 23 MB, downloaded once, then cached)
-- Hand-written chunker, BM25 and cosine similarity
+- Hand-written chunker, BM25, cosine similarity and DOCX/ODT text extraction
+- [pdf.js](https://mozilla.github.io/pdf.js/) and [fflate](https://github.com/101arrowz/fflate), loaded only when a file is uploaded
 - GitHub Actions deploying to GitHub Pages
 
 ## Getting started
@@ -47,7 +48,7 @@ pnpm build
 
 ## Project status
 
-Version 1.0.0 (see [CHANGELOG.md](CHANGELOG.md)). See [CONTRIBUTING.md](CONTRIBUTING.md) if you'd like to help.
+Version 1.1.0 (see [CHANGELOG.md](CHANGELOG.md)). See [CONTRIBUTING.md](CONTRIBUTING.md) if you'd like to help.
 
 ## Credits
 

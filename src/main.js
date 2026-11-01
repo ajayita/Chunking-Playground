@@ -3,12 +3,15 @@ import { buildBM25, splitByMatches } from './bm25.js';
 import { rankBySimilarity } from './similarity.js';
 import { embed, loadModel } from './embeddings.js';
 import { SAMPLE_DOCUMENT, SAMPLE_QUESTIONS } from './sample.js';
+import { extractText, ACCEPT } from './extract.js';
 
 const TOP_K = 3;
 const $ = (id) => document.getElementById(id);
 
 const els = {
   doc: $('doc'),
+  file: $('file'),
+  fileStatus: $('file-status'),
   size: $('size'),
   sizeOut: $('size-out'),
   overlap: $('overlap'),
@@ -194,6 +197,59 @@ function startModelLoad() {
     });
 }
 
+/* ---------- file upload (PDF, DOCX, ODT, TXT, Markdown) ---------- */
+
+const LARGE_TEXT = 100_000;
+
+async function handleFile(file) {
+  els.fileStatus.textContent = `Reading ${file.name}…`;
+  try {
+    const text = await extractText(file, (page, total) => {
+      els.fileStatus.textContent = `Reading ${file.name}: page ${page} of ${total}…`;
+    });
+    els.doc.value = text;
+    applyChunking();
+    const size = text.length.toLocaleString();
+    els.fileStatus.textContent =
+      text.length > LARGE_TEXT
+        ? `Loaded ${file.name} (${size} characters). That is a large document, so meaning search may take a while.`
+        : `Loaded ${file.name} (${size} characters).`;
+  } catch (err) {
+    console.error(err);
+    els.fileStatus.textContent = err.message ?? String(err);
+  }
+}
+
+function setupUpload() {
+  els.file.accept = ACCEPT;
+  $('upload-btn').addEventListener('click', () => els.file.click());
+  els.file.addEventListener('change', () => {
+    const [file] = els.file.files;
+    els.file.value = ''; // allow picking the same file again
+    if (file) handleFile(file);
+  });
+  $('reset-btn').addEventListener('click', () => {
+    els.doc.value = SAMPLE_DOCUMENT;
+    els.fileStatus.textContent = '';
+    applyChunking();
+  });
+
+  // Drag a file onto the text box.
+  els.doc.addEventListener('dragover', (e) => {
+    if (!e.dataTransfer?.types.includes('Files')) return;
+    e.preventDefault();
+    els.doc.classList.add('dragging');
+  });
+  els.doc.addEventListener('dragleave', () => els.doc.classList.remove('dragging'));
+  els.doc.addEventListener('drop', (e) => {
+    els.doc.classList.remove('dragging');
+    const [file] = e.dataTransfer?.files ?? [];
+    if (!file) return;
+    e.preventDefault();
+    handleFile(file);
+  });
+}
+
 /* ---------- help buttons ---------- */
 
 function setupHelp() {
@@ -290,5 +346,6 @@ showEmpty(els.em, 'Ask a question to see the top 3 chunks.');
 setupHelp();
 setupGuide();
 setupTheme();
+setupUpload();
 applyChunking();
 startModelLoad();

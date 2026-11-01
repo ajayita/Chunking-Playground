@@ -269,6 +269,32 @@ h3 small {
   margin-top: var(--space-6);
 }
 
+.doc-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  margin-top: var(--space-3);
+}
+
+.doc-tools .note,
+#file-status {
+  margin: 0;
+}
+
+#file-status:empty {
+  display: none;
+}
+
+#file-status {
+  margin-top: var(--space-2);
+}
+
+.st-textarea.dragging {
+  outline: var(--border-bold) dashed var(--klein);
+  outline-offset: 2px;
+}
+
 .stats {
   margin: var(--space-4) 0 0;
   font: 400 14px/20px var(--font-mono);
