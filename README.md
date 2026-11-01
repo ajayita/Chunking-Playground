@@ -1,0 +1,52 @@
+# Chunking Playground
+
+> Paste a document, change the chunk size and overlap, ask a question, and see exactly which chunks get retrieved and why.
+
+<!-- TODO: add screenshot at docs/screenshot.png -->
+<!-- ![Chunking Playground screenshot](docs/screenshot.png) -->
+
+**Live demo:** _coming soon (GitHub Pages)_
+
+Most RAG tutorials hide chunking behind a default setting. This playground makes that step visible: split a real document, compare keyword search (BM25) with meaning-based search (embeddings) side by side, and see the score behind every result.
+
+Everything runs in your browser. No server, no API key.
+
+## Features (v1)
+
+- Paste any document (a sample is preloaded)
+- Chunk size and overlap sliders, in characters
+- Chunks highlighted in the document with alternating colours; overlaps in a third colour
+- Chunk stats: total count and average size
+- Ask a question, get the top 3 chunks from each retrieval mode
+- Keyword (BM25) vs. meaning (embeddings), with scores and matched-word highlighting
+- Plain-English note under each mode explaining why it matched
+
+Retrieval only: there is deliberately no answer-generation step, so no LLM is needed.
+
+## Stack
+
+- [Vite](https://vite.dev) + vanilla JS, HTML and CSS
+- [`@huggingface/transformers`](https://github.com/huggingface/transformers.js) running `Xenova/all-MiniLM-L6-v2` (about 23 MB, downloaded once, then cached)
+- Hand-written chunker, BM25 and cosine similarity
+- GitHub Actions deploying to GitHub Pages
+
+## Getting started
+
+```bash
+npm install
+npm run dev
+```
+
+Build for production:
+
+```bash
+npm run build
+```
+
+## Project status
+
+Early setup. See [CONTRIBUTING.md](CONTRIBUTING.md) if you'd like to help.
+
+## License
+
+[MIT](LICENSE)
