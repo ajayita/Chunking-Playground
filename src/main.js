@@ -188,7 +188,7 @@ function startModelLoad() {
     });
 }
 
-/* ---------- help buttons + first-visit how-to ---------- */
+/* ---------- help buttons ---------- */
 
 function setupHelp() {
   for (const btn of document.querySelectorAll('button.help')) {
@@ -199,17 +199,48 @@ function setupHelp() {
       btn.setAttribute('aria-expanded', String(open));
     });
   }
+}
 
-  // Open the how-to on the first visit only; storage may be unavailable, so never depend on it.
-  const howto = document.getElementById('howto');
-  try {
-    if (!localStorage.getItem('howto-seen')) {
-      howto.open = true;
-      localStorage.setItem('howto-seen', '1');
+/* ---------- guide panel: tabs + mobile drawer ---------- */
+
+function setupGuide() {
+  const tabs = [...document.querySelectorAll('.tabs [role="tab"]')];
+  const select = (tab) => {
+    for (const t of tabs) {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
     }
-  } catch {
-    howto.open = true;
-  }
+  };
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => select(t));
+    t.addEventListener('keydown', (e) => {
+      const next = { ArrowRight: i + 1, ArrowLeft: i - 1 }[e.key];
+      if (next === undefined) return;
+      const target = tabs[(next + tabs.length) % tabs.length];
+      select(target);
+      target.focus();
+    });
+  });
+
+  const guide = $('guide');
+  const toggle = $('guide-toggle');
+  const backdrop = $('backdrop');
+  const setOpen = (open) => {
+    guide.classList.toggle('open', open);
+    backdrop.hidden = !open;
+    toggle.setAttribute('aria-expanded', String(open));
+    (open ? $('guide-close') : toggle).focus();
+  };
+  toggle.addEventListener('click', () => setOpen(true));
+  $('guide-close').addEventListener('click', () => setOpen(false));
+  backdrop.addEventListener('click', () => setOpen(false));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && guide.classList.contains('open')) setOpen(false);
+  });
+
+  for (const v of document.querySelectorAll('.version')) v.textContent = __APP_VERSION__;
 }
 
 /* ---------- wiring ---------- */
@@ -229,5 +260,6 @@ for (const q of SAMPLE_QUESTIONS) {
 showEmpty(els.kw, 'Ask a question to see the top 3 chunks.');
 showEmpty(els.em, 'Ask a question to see the top 3 chunks.');
 setupHelp();
+setupGuide();
 applyChunking();
 startModelLoad();

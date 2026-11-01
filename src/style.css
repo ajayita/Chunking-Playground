@@ -43,9 +43,9 @@ body {
 }
 
 .site-header,
-main,
+.layout,
 .site-footer {
-  max-width: 1000px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 0 16px;
 }
@@ -327,36 +327,23 @@ mark {
 
 /* ---------- help: how-to section, ? buttons, hints ---------- */
 
-.howto {
-  margin-bottom: 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-}
-
-.howto summary {
-  padding: 12px 16px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.howto-body {
+.guide-body {
   padding: 0 16px 8px;
   font-size: 0.95rem;
 }
 
-.howto-body h2 {
+.guide-body h2 {
   margin: 16px 0 6px;
   font-size: 1rem;
 }
 
-.howto-body p,
-.howto-body ol,
-.howto-body ul {
+.guide-body p,
+.guide-body ol,
+.guide-body ul {
   margin: 0 0 8px;
 }
 
-.howto-body li {
+.guide-body li {
   margin-bottom: 4px;
 }
 
@@ -417,4 +404,146 @@ mark {
 .swatch.picked-sw {
   background: transparent;
   border: 2px solid var(--accent);
+}
+
+/* ---------- split layout: app + guide ---------- */
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 16px;
+  align-items: start;
+}
+
+.guide {
+  position: sticky;
+  top: 16px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 32px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.guide-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+}
+
+.tabs button {
+  padding: 8px 12px;
+  border-radius: 8px 8px 0 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.9rem;
+  border-bottom: 2px solid transparent;
+}
+
+.tabs button[aria-selected='true'] {
+  color: var(--text);
+  font-weight: 600;
+  border-bottom-color: var(--accent);
+}
+
+.guide-body {
+  padding: 0 16px 12px;
+  overflow-y: auto;
+  font-size: 0.92rem;
+}
+
+.guide-body section[hidden] {
+  display: none;
+}
+
+.guide-body code {
+  font-size: 0.85em;
+}
+
+.guide-body a {
+  color: var(--accent);
+}
+
+.features {
+  padding-left: 18px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.guide-toggle,
+.guide-close,
+.backdrop {
+  display: none;
+}
+
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .guide-toggle {
+    display: inline-block;
+    padding: 8px 14px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+  }
+
+  .guide-close {
+    display: block;
+    padding: 0 10px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 1.6rem;
+    line-height: 1;
+  }
+
+  /* Drawer: slides in from the right; hidden from tab order and screen readers while closed. */
+  .guide {
+    position: fixed;
+    inset: 0 0 0 auto;
+    z-index: 20;
+    width: min(92vw, 400px);
+    max-height: none;
+    border-radius: 10px 0 0 10px;
+    transform: translateX(100%);
+    visibility: hidden;
+    transition: transform 0.25s, visibility 0s 0.25s;
+  }
+
+  .guide.open {
+    transform: none;
+    visibility: visible;
+    transition: transform 0.25s;
+  }
+
+  .backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.45);
+  }
+
+  .backdrop[hidden] {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guide,
+  .guide.open {
+    transition: none;
+  }
 }

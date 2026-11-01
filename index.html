@@ -17,49 +17,12 @@
         Paste a document, change the chunk size and overlap, ask a question, and see which chunks
         get retrieved and why.
       </p>
-
-      <details id="howto" class="howto">
-        <summary>How to use this &amp; about</summary>
-        <div class="howto-body">
-          <h2>The idea</h2>
-          <p>
-            Retrieval-augmented generation (RAG) apps don't feed a whole document to an AI. They
-            cut it into small pieces called <strong>chunks</strong>, find the chunks most relevant
-            to a question, and hand only those over. How you cut changes what gets found. This page
-            lets you change the cut and watch the effect.
-          </p>
-
-          <h2>How to use it</h2>
-          <ol>
-            <li><strong>Pick a document.</strong> A sample about honeybees is loaded. Paste your own over it any time.</li>
-            <li><strong>Move the sliders.</strong> Watch the colours in step 2 shift to show where each chunk starts and ends.</li>
-            <li><strong>Ask a question.</strong> Type one, or click a sample question.</li>
-            <li><strong>Compare the two columns.</strong> Each shows the top 3 chunks, found two different ways, with a score for each.</li>
-          </ol>
-          <p>Look for the <span class="help-demo">?</span> buttons: each one explains the thing next to it.</p>
-
-          <h2>Things to try</h2>
-          <ul>
-            <li>Set chunk size to 50 and ask a question. The answer gets split across chunks, so no single chunk holds it.</li>
-            <li>Now raise the overlap. Neighbouring chunks share text, so a sentence cut at one edge appears whole in the next chunk.</li>
-            <li>Ask "How do bees cool the hive?" The text says "beat their wings" and "evaporation", not "cool". Compare how the two columns cope.</li>
-          </ul>
-
-          <h2>About</h2>
-          <p>
-            Everything runs in your browser: no server, no account, no API key. Your text never
-            leaves your device. The one download is a small embedding model (about 23 MB, from
-            Hugging Face), fetched on your first visit and cached after that.
-          </p>
-          <p>
-            This tool only <em>retrieves</em> chunks. It deliberately doesn't write an answer from
-            them, so no language model is involved.
-          </p>
-        </div>
-      </details>
+      <button type="button" id="guide-toggle" class="guide-toggle" aria-expanded="false" aria-controls="guide">How to use &amp; about</button>
+    
     </header>
 
-    <main>
+    <div class="layout">
+      <main>
       <section class="panel" aria-labelledby="doc-h">
         <h2 id="doc-h">1. Your document</h2>
         <textarea id="doc" rows="10" spellcheck="false" aria-label="Document text"></textarea>
@@ -176,10 +139,95 @@
         </div>
       </section>
     </main>
+        <aside id="guide" class="guide" aria-label="Guide">
+          <div class="guide-top">
+            <div class="tabs" role="tablist" aria-label="Guide sections">
+              <button type="button" role="tab" id="tab-btn-howto" aria-selected="true" aria-controls="tab-howto">How to use</button>
+              <button type="button" role="tab" id="tab-btn-features" aria-selected="false" aria-controls="tab-features" tabindex="-1">Features</button>
+              <button type="button" role="tab" id="tab-btn-about" aria-selected="false" aria-controls="tab-about" tabindex="-1">About</button>
+            </div>
+            <button type="button" id="guide-close" class="guide-close" aria-label="Close guide">&times;</button>
+          </div>
+
+          <div class="guide-body">
+            <section id="tab-howto" role="tabpanel" aria-labelledby="tab-btn-howto">
+              <h2>The idea</h2>
+              <p>
+                Retrieval-augmented generation (RAG) apps don't feed a whole document to an AI. They
+                cut it into small pieces called <strong>chunks</strong>, find the chunks most
+                relevant to a question, and hand only those over. How you cut changes what gets
+                found. This page lets you change the cut and watch the effect.
+              </p>
+              <h2>How to use it</h2>
+              <ol>
+                <li><strong>Pick a document.</strong> A sample about honeybees is loaded. Paste your own over it any time.</li>
+                <li><strong>Move the sliders.</strong> Watch the colours in step 2 shift to show where each chunk starts and ends.</li>
+                <li><strong>Ask a question.</strong> Type one, or click a sample question.</li>
+                <li><strong>Compare the two columns.</strong> Each shows the top 3 chunks, found two different ways, with a score for each.</li>
+              </ol>
+              <p>Look for the <span class="help-demo">?</span> buttons: each one explains the thing next to it.</p>
+              <h2>Things to try</h2>
+              <ul>
+                <li>Set chunk size to 50 and ask a question. The answer gets split across chunks, so no single chunk holds it.</li>
+                <li>Now raise the overlap. Neighbouring chunks share text, so a sentence cut at one edge appears whole in the next chunk.</li>
+                <li>Ask "How do bees cool the hive?" The text says "beat their wings" and "evaporation", not "cool". Compare how the two columns cope.</li>
+              </ul>
+            </section>
+
+            <section id="tab-features" role="tabpanel" aria-labelledby="tab-btn-features" hidden>
+              <h2>What it does</h2>
+              <ul class="features">
+                <li><strong>Paste any text.</strong> A sample document is preloaded so it works straight away.</li>
+                <li><strong>Chunk size slider</strong> (50–2,000 characters).</li>
+                <li><strong>Overlap slider</strong>, in characters.</li>
+                <li><strong>Chunk map:</strong> your document coloured by chunk, with overlaps in a third colour.</li>
+                <li><strong>Chunk stats:</strong> total chunks and average size.</li>
+                <li><strong>Ask a question</strong> and get the top 3 chunks.</li>
+                <li><strong>Two retrieval modes side by side:</strong> keyword (BM25) and meaning (embeddings).</li>
+                <li><strong>Scores on every result,</strong> with a bar to compare at a glance.</li>
+                <li><strong>Matched words highlighted</strong> in keyword results.</li>
+                <li><strong>Retrieved chunks outlined</strong> in the chunk map.</li>
+                <li><strong>Live updates:</strong> results refresh as you move the sliders.</li>
+                <li><strong>Plain-English notes</strong> under each mode, and a <span class="help-demo">?</span> on every control.</li>
+                <li><strong>Loading indicator</strong> while the model downloads on your first visit.</li>
+                <li><strong>Private:</strong> runs entirely in your browser, with no server or API key.</li>
+                <li><strong>Works on desktop and mobile,</strong> in light or dark mode.</li>
+              </ul>
+              <h2>What it doesn't do</h2>
+              <ul>
+                <li>Generate answers. It only retrieves chunks, so no language model is involved.</li>
+                <li>Read PDFs or other files. Paste text instead.</li>
+              </ul>
+            </section>
+
+            <section id="tab-about" role="tabpanel" aria-labelledby="tab-btn-about" hidden>
+              <h2>About</h2>
+              <p>
+                Chunking Playground is a teaching tool for people learning RAG who have only seen
+                chunking in neat tutorials. It shows the step most frameworks hide behind a default
+                setting, and explains every result in plain language.
+              </p>
+              <p>
+                Everything runs in your browser: no server, no account, no API key. Your text never
+                leaves your device. The one download is a small embedding model
+                (<code>all-MiniLM-L6-v2</code>, about 23 MB, from Hugging Face), fetched on your
+                first visit and cached after that.
+              </p>
+              <p>
+                Keyword search, chunking and similarity scoring are written by hand in plain
+                JavaScript. Only the embedding model comes from a library
+                (<a href="https://github.com/huggingface/transformers.js" target="_blank" rel="noopener">Transformers.js</a>).
+              </p>
+              <p class="muted">Version <span class="version"></span> · MIT licence</p>
+            </section>
+          </div>
+        </aside>
+    </div>
+    <div id="backdrop" class="backdrop" hidden></div>
 
     <footer class="site-footer">
       Runs entirely in your browser. No server, no API key. Retrieval only: nothing here generates
-      answers.
+      answers. <span class="muted">v<span class="version"></span></span>
     </footer>
 
     <script type="module" src="/src/main.js"></script>

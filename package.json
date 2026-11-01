@@ -1,7 +1,7 @@
 {
   "name": "chunking-playground",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "description": "Paste a document, change chunk size and overlap, ask a question, and see which chunks get retrieved and why.",
   "license": "MIT",

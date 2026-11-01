@@ -2,8 +2,7 @@
 
 > Paste a document, change the chunk size and overlap, ask a question, and see exactly which chunks get retrieved and why.
 
-<!-- TODO: add screenshot at docs/screenshot.png -->
-<!-- ![Chunking Playground screenshot](docs/screenshot.png) -->
+![Chunking Playground screenshot](docs/screenshot.png)
 
 **Live demo:** _coming soon (GitHub Pages)_
 
@@ -21,7 +20,10 @@ Everything runs in your browser. No server, no API key.
 - Keyword (BM25) vs. meaning (embeddings), with scores and matched-word highlighting
 - Plain-English note under each mode explaining why it matched
 
-Retrieval only: there is deliberately no answer-generation step, so no LLM is needed.
+- A guide panel beside the app (How to use, Features, About), which becomes a drawer on mobile
+- A `?` hint on every control
+
+Retrieval only: there is deliberately no answer-generation step, so no LLM is needed. Not in v1: PDF or file upload (paste text instead).
 
 ## Stack
 
@@ -45,7 +47,7 @@ pnpm build
 
 ## Project status
 
-Early setup. See [CONTRIBUTING.md](CONTRIBUTING.md) if you'd like to help.
+Version 1.0.0 (see [CHANGELOG.md](CHANGELOG.md)). See [CONTRIBUTING.md](CONTRIBUTING.md) if you'd like to help.
 
 ## License
 
