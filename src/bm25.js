@@ -8,6 +8,21 @@ export function tokenize(text) {
   return (text.toLowerCase().match(/[a-z0-9]+/g) ?? []).filter((t) => !STOPWORDS.has(t));
 }
 
+/** Splits text into [{ text, hit }] parts, where hit marks words found in `matched`. */
+export function splitByMatches(text, matched) {
+  const set = new Set(matched);
+  const parts = [];
+  let last = 0;
+  for (const m of text.matchAll(/[a-z0-9]+/gi)) {
+    if (!set.has(m[0].toLowerCase())) continue;
+    if (m.index > last) parts.push({ text: text.slice(last, m.index), hit: false });
+    parts.push({ text: m[0], hit: true });
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) parts.push({ text: text.slice(last), hit: false });
+  return parts;
+}
+
 /**
  * Okapi BM25. Builds an index over chunk texts, then scores a query against each chunk.
  * score(q, d) = sum over query terms t of IDF(t) * tf*(k1+1) / (tf + k1*(1 - b + b*|d|/avgdl))

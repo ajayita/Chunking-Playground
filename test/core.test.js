@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { chunkText, chunkStats, highlightSegments } from '../src/chunker.js';
-import { buildBM25, tokenize } from '../src/bm25.js';
+import { buildBM25, tokenize, splitByMatches } from '../src/bm25.js';
 import { cosineSimilarity, rankBySimilarity } from '../src/similarity.js';
 
 test('chunkText splits with overlap and covers the whole text', () => {
@@ -60,6 +60,13 @@ test('BM25 ranks the chunk containing the query terms first', () => {
   assert.equal(results[0].chunk.id, 2);
   assert.deepEqual(results[0].matched.sort(), ['embeddings', 'semantic', 'vectors']);
   assert.ok(!results.some((r) => r.chunk.id === 0));
+});
+
+test('splitByMatches marks matched words and preserves text', () => {
+  const parts = splitByMatches('Bees make Honey, then rest.', ['honey', 'bees']);
+  assert.equal(parts.map((p) => p.text).join(''), 'Bees make Honey, then rest.');
+  assert.deepEqual(parts.filter((p) => p.hit).map((p) => p.text), ['Bees', 'Honey']);
+  assert.deepEqual(splitByMatches('nothing here', ['zzz']), [{ text: 'nothing here', hit: false }]);
 });
 
 test('cosine similarity', () => {
