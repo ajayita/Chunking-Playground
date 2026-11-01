@@ -2,7 +2,7 @@
 
 > Paste a document, change the chunk size and overlap, ask a question, and see exactly which chunks get retrieved and why.
 
-![Chunking Playground screenshot](docs/screenshot.png)
+![Chunking playground screenshot](docs/screenshot.png)
 
 **Live demo:** _coming soon (GitHub Pages)_
 
@@ -49,7 +49,7 @@ pnpm build
 
 ## Project status
 
-Version 1.1.1 (see [CHANGELOG.md](CHANGELOG.md)). See [CONTRIBUTING.md](CONTRIBUTING.md) if you'd like to help.
+Version 1.1.2 (see [CHANGELOG.md](CHANGELOG.md)). See [CONTRIBUTING.md](CONTRIBUTING.md) if you'd like to help.
 
 ## Credits
 

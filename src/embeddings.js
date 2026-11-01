@@ -12,8 +12,12 @@ export function loadModel(onProgress = () => {}) {
 
   const files = new Map(); // file -> { loaded, total }
   extractorPromise = import('@huggingface/transformers')
-    .then(({ pipeline }) =>
-      pipeline('feature-extraction', MODEL_ID, {
+    .then(({ pipeline, env }) => {
+      // Always fetch from the Hugging Face CDN. Without this, a dev server's index.html fallback can be
+      // mistaken for a local model file and fail to parse.
+      env.allowLocalModels = false;
+      env.allowRemoteModels = true;
+      return pipeline('feature-extraction', MODEL_ID, {
         dtype: 'q8',
         progress_callback: (p) => {
           if (p.status !== 'progress' || !p.total) return;
@@ -26,8 +30,8 @@ export function loadModel(onProgress = () => {}) {
           }
           onProgress(total ? (loaded / total) * 100 : 0);
         },
-      })
-    )
+      });
+    })
     .catch((err) => {
       extractorPromise = null; // allow retry
       throw err;

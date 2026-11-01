@@ -2,6 +2,11 @@
 
 Versioning stays at 1.x until a major change.
 
+## 1.1.2
+
+- Model load failures now show the actual reason and a Try again button; the embedding model is always fetched remotely (never from the dev server)
+- README screenshot is the light theme, taken after a real search
+
 ## 1.1.1
 
 - Restyled on the Ninth design system: IBM Plex Sans and Mono for readability, Ninth's header, panels, fields, tabs and states, a status badge, and the standard footer signature

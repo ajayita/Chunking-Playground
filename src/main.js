@@ -117,7 +117,7 @@ function resultCard(rank, r, maxScore, { highlight }) {
 }
 
 /** Ninth state message: kind is 'empty' | 'loading' | 'error'. */
-function showState(container, kind, title, text) {
+function showState(container, kind, title, text, action) {
   const titleEl = h('p', { className: 'n-state-title' });
   if (kind === 'loading') titleEl.append(h('span', { className: 'n-spinner' }));
   titleEl.append(title);
@@ -126,6 +126,9 @@ function showState(container, kind, title, text) {
   if (kind === 'loading') node.setAttribute('role', 'status');
   if (kind === 'error') node.setAttribute('role', 'alert');
   if (text) node.append(h('p', { textContent: text }));
+  if (action) {
+    node.append(h('button', { type: 'button', className: 'n-btn n-btn--secondary n-btn--sm', textContent: action.label, onclick: action.onClick }));
+  }
   container.replaceChildren(node);
 }
 
@@ -206,7 +209,8 @@ function startModelLoad() {
         els.modelStatus,
         'error',
         "Meaning search isn't available",
-        "The embedding model couldn't be downloaded. Check your connection and reload the page. Keyword search still works."
+        `The embedding model couldn't be loaded (${err?.message ?? err}). Check your connection, and that nothing is blocking huggingface.co, then try again. Keyword search still works.`,
+        { label: 'Try again', onClick: startModelLoad }
       );
     });
 }
