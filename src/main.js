@@ -18,6 +18,7 @@ const els = {
   form: $('ask-form'),
   question: $('question'),
   chips: $('chips'),
+  chipsHint: $('chips-hint'),
   kw: $('kw-results'),
   em: $('em-results'),
   modelStatus: $('model-status'),
@@ -52,6 +53,11 @@ function applyChunking() {
 
   els.sizeOut.textContent = size;
   els.overlapOut.textContent = overlap;
+
+  // Sample questions are written for the sample document; hide them once the text is changed.
+  const isSample = els.doc.value === SAMPLE_DOCUMENT;
+  els.chips.hidden = !isSample;
+  els.chipsHint.hidden = isSample;
 
   state.chunks = chunkText(els.doc.value, size, overlap);
   state.bm25 = buildBM25(state.chunks);

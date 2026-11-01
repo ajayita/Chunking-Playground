@@ -94,6 +94,7 @@
           <button type="submit">Search</button>
         </form>
         <p class="chips" id="chips" aria-label="Sample questions"></p>
+        <p class="note" id="chips-hint" hidden>The sample questions only fit the sample document. Type your own question about your text.</p>
 
         <div class="results-grid">
           <div class="results-col">
@@ -170,7 +171,7 @@
               <ul>
                 <li>Set chunk size to 50 and ask a question. The answer gets split across chunks, so no single chunk holds it.</li>
                 <li>Now raise the overlap. Neighbouring chunks share text, so a sentence cut at one edge appears whole in the next chunk.</li>
-                <li>Ask "How do bees cool the hive?" The text says "beat their wings" and "evaporation", not "cool". Compare how the two columns cope.</li>
+                <li>With the sample document, ask "How do bees cool the hive?" The text says "beat their wings" and "evaporation", not "cool". Compare how the two columns cope.</li>
               </ul>
             </section>
 
