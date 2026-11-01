@@ -4,7 +4,7 @@
 
 ![Chunking playground screenshot](docs/screenshot.png)
 
-**Live demo:** _coming soon (GitHub Pages)_
+**Live demo:** https://ajayita.github.io/Chunking-Playground/
 
 Most RAG tutorials hide chunking behind a default setting. This playground makes that step visible: split a real document, compare keyword search (BM25) with meaning-based search (embeddings) side by side, and see the score behind every result.
 
