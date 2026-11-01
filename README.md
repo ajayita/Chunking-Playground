@@ -33,14 +33,14 @@ Retrieval only: there is deliberately no answer-generation step, so no LLM is ne
 ## Getting started
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Build for production:
 
 ```bash
-npm run build
+pnpm build
 ```
 
 ## Project status

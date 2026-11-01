@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Paste a document, change chunk size and overlap, ask a question, and see which chunks get retrieved and why.",
   "license": "MIT",
+  "packageManager": "pnpm@12.16.1",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

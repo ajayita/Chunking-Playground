@@ -5,8 +5,8 @@ Thanks for helping out. This is an educational project, so clarity beats clevern
 ## Setup
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 ## Guidelines
@@ -21,7 +21,7 @@ npm run dev
 
 1. Branch from `main`.
 2. Keep changes focused; describe what and why.
-3. Make sure `npm run build` passes.
+3. Make sure `pnpm build` passes.
 
 ## Reporting issues
 
