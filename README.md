@@ -1,4 +1,4 @@
-# Chunking Playground
+# Chunking playground
 
 > Paste a document, change the chunk size and overlap, ask a question, and see exactly which chunks get retrieved and why.
 
@@ -14,7 +14,7 @@ Everything runs in your browser. No server, no API key.
 
 - Paste any document (a sample is preloaded), or upload a PDF, DOCX, ODT, TXT or Markdown file
 - Chunk size and overlap sliders, in characters
-- Chunks highlighted in the document with alternating colours; overlaps in a third colour
+- Chunk map: the document shaded by chunk, with overlaps in a third shade
 - Chunk stats: total count and average size
 - Ask a question, get the top 3 chunks from each retrieval mode
 - Keyword (BM25) vs. meaning (embeddings), with scores and matched-word highlighting
@@ -28,6 +28,7 @@ Retrieval only: there is deliberately no answer-generation step, so no LLM is ne
 ## Stack
 
 - [Vite](https://vite.dev) + vanilla JS, HTML and CSS
+- The Ninth design system (copied into `public/ninth/`) with IBM Plex Sans and Mono
 - [`@huggingface/transformers`](https://github.com/huggingface/transformers.js) running `Xenova/all-MiniLM-L6-v2` (about 23 MB, downloaded once, then cached)
 - Hand-written chunker, BM25, cosine similarity and DOCX/ODT text extraction
 - [pdf.js](https://mozilla.github.io/pdf.js/) and [fflate](https://github.com/101arrowz/fflate), loaded only when a file is uploaded
@@ -48,11 +49,11 @@ pnpm build
 
 ## Project status
 
-Version 1.1.0 (see [CHANGELOG.md](CHANGELOG.md)). See [CONTRIBUTING.md](CONTRIBUTING.md) if you'd like to help.
+Version 1.1.1 (see [CHANGELOG.md](CHANGELOG.md)). See [CONTRIBUTING.md](CONTRIBUTING.md) if you'd like to help.
 
 ## Credits
 
-Made by [S. Teniola Ajayi](https://ajayiot.com). Visual system and fonts (Syne, Instrument Sans, IBM Plex Mono, all under the SIL Open Font License) are described in [public/fonts/LICENSES.md](public/fonts/LICENSES.md).
+Made by [S. Teniola Ajayi](https://ajayiot.com). Styled with Ninth; the IBM Plex fonts are under the SIL Open Font License (see [public/ninth/fonts/OFL.txt](public/ninth/fonts/OFL.txt)).
 
 ## License
 

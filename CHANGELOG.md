@@ -2,6 +2,13 @@
 
 Versioning stays at 1.x until a major change.
 
+## 1.1.1
+
+- Restyled on the Ninth design system: IBM Plex Sans and Mono for readability, Ninth's header, panels, fields, tabs and states, a status badge, and the standard footer signature
+- Removed the logo banner from the top of the page; the maker's signature now appears only in the footer
+- Light, dark and auto themes via Ninth's theme toggle
+- Clearer empty, loading and error states for both search modes
+
 ## 1.1.0
 
 - Upload PDF, DOCX, ODT, TXT or Markdown files, or drop them on the text box. Text is extracted in the browser; legacy `.doc` is rejected with a hint to save as .docx

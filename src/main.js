@@ -16,7 +16,8 @@ const els = {
   sizeOut: $('size-out'),
   overlap: $('overlap'),
   overlapOut: $('overlap-out'),
-  stats: $('stats'),
+  statCount: $('stat-count'),
+  statAvg: $('stat-avg'),
   docView: $('doc-view'),
   form: $('ask-form'),
   question: $('question'),
@@ -54,8 +55,8 @@ function applyChunking() {
   if (Number(els.overlap.value) > maxOverlap) els.overlap.value = String(maxOverlap);
   const overlap = Number(els.overlap.value);
 
-  els.sizeOut.textContent = size;
-  els.overlapOut.textContent = overlap;
+  els.sizeOut.textContent = `${size} characters`;
+  els.overlapOut.textContent = `${overlap} characters`;
 
   // Sample questions are written for the sample document; hide them once the text is changed.
   const isSample = els.doc.value === SAMPLE_DOCUMENT;
@@ -66,9 +67,8 @@ function applyChunking() {
   state.bm25 = buildBM25(state.chunks);
 
   const { count, avgSize } = chunkStats(state.chunks);
-  els.stats.textContent = count
-    ? `${count} chunk${count === 1 ? '' : 's'}, average ${avgSize} characters`
-    : 'No text yet. Paste a document above.';
+  els.statCount.textContent = count;
+  els.statAvg.textContent = avgSize;
 
   renderDocView();
   if (state.question) runSearch();
@@ -104,20 +104,29 @@ function resultCard(rank, r, maxScore, { highlight }) {
   const pct = maxScore > 0 ? Math.max(0, Math.min(100, (r.score / maxScore) * 100)) : 0;
   const head = h(
     'div',
-    { className: 'result-head' },
-    h('span', {}, h('strong', { textContent: `#${rank}` }), ` · chunk ${c.id} · chars ${c.start}–${c.end}`),
+    { className: 'result-head n-data' },
+    h('span', {}, h('strong', { textContent: `#${rank}` }), ` · chunk ${c.id} · characters ${c.start}–${c.end}`),
     h('span', { textContent: `score ${r.score.toFixed(3)}` })
   );
   const bar = h('div', { className: 'score-bar' }, h('div', { style: `width:${pct}%` }));
   const card = h('div', { className: 'result' }, head, bar, body);
   if (r.matched) {
-    card.append(h('p', { className: 'note', textContent: `Matched words: ${r.matched.join(', ')}` }));
+    card.append(h('p', { className: 'result-matched', textContent: `Matched words: ${r.matched.join(', ')}` }));
   }
   return card;
 }
 
-function showEmpty(container, text) {
-  container.replaceChildren(h('p', { className: 'empty', textContent: text }));
+/** Ninth state message: kind is 'empty' | 'loading' | 'error'. */
+function showState(container, kind, title, text) {
+  const titleEl = h('p', { className: 'n-state-title' });
+  if (kind === 'loading') titleEl.append(h('span', { className: 'n-spinner' }));
+  titleEl.append(title);
+  const node = h('div', { className: 'n-state' }, titleEl);
+  node.dataset.kind = kind;
+  if (kind === 'loading') node.setAttribute('role', 'status');
+  if (kind === 'error') node.setAttribute('role', 'alert');
+  if (text) node.append(h('p', { textContent: text }));
+  container.replaceChildren(node);
 }
 
 /* ---------- search ---------- */
@@ -129,8 +138,8 @@ async function runSearch() {
   state.picked = { kw: new Set(), em: new Set() };
 
   if (!chunks.length) {
-    showEmpty(els.kw, 'Add some text first.');
-    showEmpty(els.em, 'Add some text first.');
+    showState(els.kw, 'empty', 'No text yet', 'Paste a document or upload a file, then search.');
+    showState(els.em, 'empty', 'No text yet', 'Paste a document or upload a file, then search.');
     return renderDocView();
   }
 
@@ -140,18 +149,18 @@ async function runSearch() {
     const max = kw[0].score;
     els.kw.replaceChildren(...kw.map((r, i) => resultCard(i + 1, r, max, { highlight: true })));
   } else {
-    showEmpty(els.kw, 'No chunk shares an exact word with your question, so keyword search returns nothing.');
+    showState(els.kw, 'empty', 'No exact matches', 'No chunk shares a word with your question. Try different words, or compare with meaning search.');
   }
   state.picked.kw = new Set(kw.map((r) => r.chunk.id));
   renderDocView();
 
   // Embedding search needs the model and vectors for every chunk.
-  showEmpty(els.em, state.modelReady ? 'Embedding chunks…' : 'Waiting for the model to load…');
+  showState(els.em, 'loading', state.modelReady ? 'Embedding chunks…' : 'Waiting for the model to load…');
   try {
     const missing = [...new Set(chunks.map((c) => c.text).filter((t) => !vectorCache.has(t)))];
     if (missing.length) {
       const vecs = await embed(missing, (done, total) => {
-        if (token === state.searchToken) showEmpty(els.em, `Embedding chunks… ${done}/${total}`);
+        if (token === state.searchToken) showState(els.em, 'loading', `Embedding chunks… ${done} of ${total}`);
       });
       missing.forEach((t, i) => vectorCache.set(t, vecs[i]));
     }
@@ -166,7 +175,7 @@ async function runSearch() {
   } catch (err) {
     if (token !== state.searchToken) return;
     console.error(err);
-    showEmpty(els.em, `Could not run the embedding model: ${err.message ?? err}`);
+    showState(els.em, 'error', 'Meaning search failed', "The embedding model couldn't run. Reload the page and try again; keyword search still works.");
   }
 }
 
@@ -193,7 +202,12 @@ function startModelLoad() {
     })
     .catch((err) => {
       console.error(err);
-      els.modelStatus.textContent = `Embedding model failed to load: ${err.message ?? err}. Keyword search still works.`;
+      showState(
+        els.modelStatus,
+        'error',
+        "Meaning search isn't available",
+        "The embedding model couldn't be downloaded. Check your connection and reload the page. Keyword search still works."
+      );
     });
 }
 
@@ -201,22 +215,30 @@ function startModelLoad() {
 
 const LARGE_TEXT = 100_000;
 
+function setFileStatus(text, isError = false) {
+  els.fileStatus.hidden = !text;
+  els.fileStatus.textContent = text;
+  els.fileStatus.className = isError ? 'n-error' : 'n-hint';
+  els.fileStatus.setAttribute('role', isError ? 'alert' : 'status');
+}
+
 async function handleFile(file) {
-  els.fileStatus.textContent = `Reading ${file.name}…`;
+  setFileStatus(`Reading ${file.name}…`);
   try {
     const text = await extractText(file, (page, total) => {
-      els.fileStatus.textContent = `Reading ${file.name}: page ${page} of ${total}…`;
+      setFileStatus(`Reading ${file.name}: page ${page} of ${total}…`);
     });
     els.doc.value = text;
     applyChunking();
     const size = text.length.toLocaleString();
-    els.fileStatus.textContent =
+    setFileStatus(
       text.length > LARGE_TEXT
         ? `Loaded ${file.name} (${size} characters). That is a large document, so meaning search may take a while.`
-        : `Loaded ${file.name} (${size} characters).`;
+        : `Loaded ${file.name} (${size} characters).`
+    );
   } catch (err) {
     console.error(err);
-    els.fileStatus.textContent = err.message ?? String(err);
+    setFileStatus(err.message ?? String(err), true);
   }
 }
 
@@ -230,7 +252,7 @@ function setupUpload() {
   });
   $('reset-btn').addEventListener('click', () => {
     els.doc.value = SAMPLE_DOCUMENT;
-    els.fileStatus.textContent = '';
+    setFileStatus('');
     applyChunking();
   });
 
@@ -253,7 +275,7 @@ function setupUpload() {
 /* ---------- help buttons ---------- */
 
 function setupHelp() {
-  for (const btn of document.querySelectorAll('button.help')) {
+  for (const btn of document.querySelectorAll('button.explain')) {
     btn.addEventListener('click', () => {
       const hint = document.getElementById(btn.getAttribute('aria-controls'));
       const open = hint.hidden;
@@ -263,51 +285,9 @@ function setupHelp() {
   }
 }
 
-/* ---------- theme toggle (Paper / Night) ---------- */
-
-function setupTheme() {
-  const btn = $('theme-toggle');
-  const root = document.documentElement;
-  const label = () => {
-    const night = root.getAttribute('data-theme') === 'night';
-    btn.textContent = night ? 'Theme: Night' : 'Theme: Paper';
-  };
-  btn.addEventListener('click', () => {
-    const next = root.getAttribute('data-theme') === 'night' ? 'paper' : 'night';
-    root.setAttribute('data-theme', next);
-    try {
-      localStorage.setItem('theme', next);
-    } catch {
-      /* storage unavailable: the choice just won't persist */
-    }
-    label();
-  });
-  label();
-}
-
-/* ---------- guide panel: tabs + mobile drawer ---------- */
+/* ---------- guide panel: mobile drawer (tabs and theme toggle come from Ninth) ---------- */
 
 function setupGuide() {
-  const tabs = [...document.querySelectorAll('.tabs [role="tab"]')];
-  const select = (tab) => {
-    for (const t of tabs) {
-      const on = t === tab;
-      t.setAttribute('aria-selected', String(on));
-      t.tabIndex = on ? 0 : -1;
-      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
-    }
-  };
-  tabs.forEach((t, i) => {
-    t.addEventListener('click', () => select(t));
-    t.addEventListener('keydown', (e) => {
-      const next = { ArrowRight: i + 1, ArrowLeft: i - 1 }[e.key];
-      if (next === undefined) return;
-      const target = tabs[(next + tabs.length) % tabs.length];
-      select(target);
-      target.focus();
-    });
-  });
-
   const guide = $('guide');
   const toggle = $('guide-toggle');
   const backdrop = $('backdrop');
@@ -338,14 +318,13 @@ els.form.addEventListener('submit', (e) => {
   ask(els.question.value);
 });
 for (const q of SAMPLE_QUESTIONS) {
-  els.chips.append(h('button', { type: 'button', className: 'st-btn st-btn--outline st-btn--sm', textContent: q, onclick: () => ask(q) }));
+  els.chips.append(h('button', { type: 'button', className: 'n-btn n-btn--secondary n-btn--sm', textContent: q, onclick: () => ask(q) }));
 }
 
-showEmpty(els.kw, 'Ask a question to see the top 3 chunks.');
-showEmpty(els.em, 'Ask a question to see the top 3 chunks.');
+showState(els.kw, 'empty', 'No results yet', 'Ask a question to see the top 3 chunks.');
+showState(els.em, 'empty', 'No results yet', 'Ask a question to see the top 3 chunks.');
 setupHelp();
 setupGuide();
-setupTheme();
 setupUpload();
 applyChunking();
 startModelLoad();

@@ -12,6 +12,7 @@ pnpm dev
 ## Guidelines
 
 - Keep it framework-free: vanilla JS, HTML, CSS.
+- Style with Ninth's `n-` classes and `var(--n-…)` variables. Don't hard-code colours, fonts or spacing, and don't edit the files in `public/ninth/`.
 - The chunker, BM25 and cosine similarity are hand-written on purpose. Don't swap them for libraries.
 - Everything must run client-side. No servers, no API keys.
 - Explanations shown to users should be plain English.

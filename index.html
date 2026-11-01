@@ -1,279 +1,330 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-GB" data-accent="teal">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
     <meta
       name="description"
-      content="Paste a document, change chunk size and overlap, ask a question, and see exactly which chunks get retrieved and why."
+      content="Paste a document, change the chunk size and overlap, ask a question, and see which chunks get retrieved and why."
     />
     <meta name="author" content="S. Teniola Ajayi" />
-    <title>Chunking Playground</title>
-    <link rel="icon" type="image/svg+xml" href="/mark.svg" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="preload" href="/fonts/Syne-Variable.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/InstrumentSans-Variable.woff2" as="font" type="font/woff2" crossorigin />
-    <script>
-      // Set the theme before first paint (no flash): saved choice, else the system preference.
-      (function () {
-        var t;
-        try { t = localStorage.getItem('theme'); } catch (e) {}
-        if (t !== 'paper' && t !== 'night') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'paper';
-        document.documentElement.setAttribute('data-theme', t);
-      })();
-    </script>
+    <title>Chunking playground</title>
+    <link rel="preload" href="/ninth/fonts/IBMPlexSans-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/ninth/ninth.css" />
     <link rel="stylesheet" href="/src/style.css" />
+    <script src="/ninth/ninth.js"></script>
   </head>
   <body>
-    <header class="site-header">
-      <div class="topbar">
-        <a class="brand" href="https://ajayiot.com" rel="noopener" aria-label="S. Teniola Ajayi, ajayiot.com">
-          <img class="lockup lockup--paper" src="/lockup.svg" alt="S. Teniola Ajayi" />
-          <img class="lockup lockup--night" src="/lockup-reversed.svg" alt="" />
-        </a>
-        <button type="button" id="guide-toggle" class="guide-toggle st-btn st-btn--outline st-btn--sm" aria-expanded="false" aria-controls="guide">How to use &amp; about</button>
+    <a class="n-skip" href="#main">Skip to content</a>
+
+    <header class="n-header">
+      <div class="n-container n-header-inner">
+        <div class="n-header-id">
+          <a class="n-wordmark" href="./">Chunking playground</a>
+          <span class="n-badge" data-status="experiment">Experiment</span>
+        </div>
+        <nav class="n-nav" aria-label="Main">
+          <a href="https://github.com/ajayita/Chunking-Playground">Source ↗</a>
+        </nav>
+        <button type="button" id="guide-toggle" class="n-btn n-btn--secondary guide-toggle" aria-expanded="false" aria-controls="guide">How to use</button>
+        <button class="n-btn n-btn--secondary n-theme-toggle" type="button" data-n-theme-toggle>Theme: Auto</button>
       </div>
-      <p class="st-kicker st-kicker--plain">RAG basics · Interactive demo</p>
-      <h1 class="headline">Chunking Playground.</h1>
-      <p class="lede tagline">
-        Paste a document, change the chunk size and overlap, ask a question, and see which chunks
-        get retrieved and why.
-      </p>
     </header>
 
-    <div class="layout">
-      <main>
-      <section class="panel" aria-labelledby="doc-h">
-        <p class="st-kicker st-kicker--plain">Step 1 · Document</p>
-        <h2 id="doc-h" class="title">Your document.</h2>
-        <textarea id="doc" class="st-input st-textarea" rows="10" spellcheck="false" aria-label="Document text"></textarea>
-        <div class="doc-tools">
-          <input id="file" type="file" hidden />
-          <button type="button" id="upload-btn" class="st-btn st-btn--outline st-btn--sm">Upload file</button>
-          <button type="button" id="reset-btn" class="st-btn st-btn--link">Reset to sample</button>
-          <span class="note">PDF, DOCX, ODT, TXT or Markdown. Read in your browser; nothing is uploaded anywhere.</span>
+    <main id="main" class="n-main">
+      <div class="n-container n-stack" style="--n-gap: var(--n-space-8)">
+        <div class="n-stack" style="--n-gap: var(--n-space-3)">
+          <h1 class="n-display" style="margin: 0">Chunking playground</h1>
+          <p class="n-lede" style="margin: 0; max-width: 68ch">
+            Paste a document, choose a chunk size and overlap, and see which pieces a question
+            retrieves, and why.
+          </p>
         </div>
-        <p id="file-status" class="note" role="status" aria-live="polite"></p>
-        <div class="controls">
-          <div class="control">
-            <div class="control-head">
-              <label for="size">Chunk size: <output id="size-out"></output> characters</label>
-              <button type="button" class="help" aria-expanded="false" aria-controls="help-size" aria-label="What does chunk size do?">?</button>
-            </div>
-            <input id="size" type="range" min="50" max="2000" step="10" value="400" />
-            <p class="hint" id="help-size" hidden>
-              How long each chunk is. <strong>Small chunks</strong> are precise, but they cut ideas
-              into fragments and lose context. <strong>Large chunks</strong> keep context, but one
-              chunk then mixes several topics, which blurs matching. The embedding model used here
-              also ignores everything past roughly 1,000 characters of a chunk, so very large
-              chunks are partly invisible to it.
-            </p>
-          </div>
-          <div class="control">
-            <div class="control-head">
-              <label for="overlap">Overlap: <output id="overlap-out"></output> characters</label>
-              <button type="button" class="help" aria-expanded="false" aria-controls="help-overlap" aria-label="What does overlap do?">?</button>
-            </div>
-            <input id="overlap" type="range" min="0" max="360" step="5" value="50" />
-            <p class="hint" id="help-overlap" hidden>
-              How much text each chunk repeats from the end of the previous one. Without overlap, a
-              sentence that straddles a boundary is split in two and neither half makes full sense.
-              With overlap, it appears whole in at least one chunk. The cost: more chunks, and
-              near-duplicate results. It can't reach the chunk size.
-            </p>
-          </div>
-        </div>
-        <p id="stats" class="stats" aria-live="polite"></p>
-      </section>
 
-      <section class="panel" aria-labelledby="chunks-h">
-        <p class="st-kicker st-kicker--plain">Step 2 · Chunk map</p>
-        <div class="panel-head">
-          <h2 id="chunks-h" class="title">Where the chunks fall.</h2>
-          <button type="button" class="help" aria-expanded="false" aria-controls="help-chunks" aria-label="How do I read this view?">?</button>
+        <div class="n-callout" data-kind="note" style="max-width: 68ch">
+          <p class="n-callout-title">Note</p>
+          <p>
+            Everything runs in your browser. Nothing you paste or upload leaves your device. This
+            tool only retrieves chunks; it doesn't write answers.
+          </p>
         </div>
-        <p class="hint" id="help-chunks" hidden>
-          This is your document, cut up. Chunks alternate between two colours so you can see where
-          one ends and the next begins. Where two chunks share text (the overlap), that text is
-          shown in a third colour. After you search, chunks that were retrieved get a blue outline.
-          Chunks are cut at an exact character count, so a cut can land mid-word. That is how simple
-          fixed-size chunking behaves.
-        </p>
-        <p class="legend">
-          <span class="swatch a"></span>even chunk
-          <span class="swatch b"></span>odd chunk
-          <span class="swatch ov"></span>overlap
-          <span class="swatch picked-sw"></span>retrieved
-        </p>
-        <div id="doc-view" class="doc-view" tabindex="0" aria-label="Document split into chunks"></div>
-      </section>
 
-      <section class="panel" aria-labelledby="ask-h">
-        <p class="st-kicker st-kicker--plain">Step 3 · Search</p>
-        <div class="panel-head">
-          <h2 id="ask-h" class="title">Ask a question.</h2>
-          <button type="button" class="help" aria-expanded="false" aria-controls="help-ask" aria-label="What happens when I search?">?</button>
-        </div>
-        <p class="hint" id="help-ask" hidden>
-          Your question is compared against every chunk in two different ways, and each way returns
-          its 3 best chunks. Change the sliders after searching and the results update, so you can
-          see how chunking changes what is found.
-        </p>
-        <form id="ask-form" class="ask-form">
-          <input id="question" class="st-input" type="text" placeholder="Ask something about the document…" autocomplete="off" aria-label="Question" />
-          <button type="submit" class="st-btn st-btn--primary">Search</button>
-        </form>
-        <p class="chips" id="chips" aria-label="Sample questions"></p>
-        <p class="note" id="chips-hint" hidden>The sample questions only fit the sample document. Type your own question about your text.</p>
+        <div class="layout">
+          <div class="n-stack" style="--n-gap: var(--n-space-6)">
+            <section class="n-panel" aria-labelledby="doc-h">
+              <div class="n-panel-head">
+                <h2 class="n-panel-title" id="doc-h">Document</h2>
+                <div class="n-cluster">
+                  <button type="button" id="upload-btn" class="n-btn n-btn--secondary n-btn--sm">Upload file</button>
+                  <button type="button" id="reset-btn" class="n-btn n-btn--ghost n-btn--sm">Reset to sample</button>
+                </div>
+              </div>
+              <div class="n-panel-body n-stack" style="--n-gap: var(--n-space-4)">
+                <input id="file" type="file" hidden />
+                <div class="n-field">
+                  <label class="n-label n-visually-hidden" for="doc">Document text</label>
+                  <textarea id="doc" class="n-textarea" rows="10" spellcheck="false" aria-describedby="doc-hint"></textarea>
+                  <p class="n-hint" id="doc-hint">
+                    Paste text, or upload a PDF, DOCX, ODT, TXT or Markdown file. Files are read in
+                    your browser and are never uploaded.
+                  </p>
+                </div>
+                <p id="file-status" class="n-hint" role="status" hidden></p>
 
-        <div class="results-grid">
-          <div class="results-col">
-            <div class="panel-head">
-              <h3>Keyword search <small>(BM25)</small></h3>
-              <button type="button" class="help" aria-expanded="false" aria-controls="help-kw" aria-label="How do I read keyword results?">?</button>
+                <div class="n-split" style="--n-gap: var(--n-space-6)">
+                  <div class="n-field">
+                    <div class="n-label-row">
+                      <label class="n-label" for="size">Chunk size</label>
+                      <output class="n-range-value" id="size-out" for="size"></output>
+                    </div>
+                    <input id="size" class="n-range" type="range" min="50" max="2000" step="10" value="400" aria-describedby="hint-size" />
+                    <p class="n-hint" id="hint-size">Characters per chunk, from 50 to 2,000.</p>
+                    <div>
+                      <button type="button" class="n-btn n-btn--ghost n-btn--sm explain" aria-expanded="false" aria-controls="help-size">What does this do?</button>
+                    </div>
+                    <p class="explain-text" id="help-size" hidden>
+                      How long each chunk is. <strong>Small chunks</strong> are precise, but they cut
+                      ideas into fragments and lose context. <strong>Large chunks</strong> keep
+                      context, but one chunk then mixes several topics, which blurs matching. The
+                      embedding model used here also ignores everything past roughly 1,000
+                      characters of a chunk, so very large chunks are partly invisible to it.
+                    </p>
+                  </div>
+                  <div class="n-field">
+                    <div class="n-label-row">
+                      <label class="n-label" for="overlap">Overlap</label>
+                      <output class="n-range-value" id="overlap-out" for="overlap"></output>
+                    </div>
+                    <input id="overlap" class="n-range" type="range" min="0" max="360" step="5" value="50" aria-describedby="hint-overlap" />
+                    <p class="n-hint" id="hint-overlap">Characters shared between neighbouring chunks.</p>
+                    <div>
+                      <button type="button" class="n-btn n-btn--ghost n-btn--sm explain" aria-expanded="false" aria-controls="help-overlap">What does this do?</button>
+                    </div>
+                    <p class="explain-text" id="help-overlap" hidden>
+                      How much text each chunk repeats from the end of the previous one. Without
+                      overlap, a sentence that straddles a boundary is split in two and neither half
+                      makes full sense. With overlap, it appears whole in at least one chunk. The
+                      cost: more chunks, and near-duplicate results. Overlap can't reach the chunk
+                      size.
+                    </p>
+                  </div>
+                </div>
+
+                <dl class="n-readouts" aria-live="polite">
+                  <div class="n-readout"><dt>Chunks</dt><dd id="stat-count">0</dd></div>
+                  <div class="n-readout"><dt>Average size</dt><dd><span id="stat-avg">0</span><span class="n-readout-unit">characters</span></dd></div>
+                </dl>
+              </div>
+            </section>
+
+            <section class="n-panel" aria-labelledby="chunks-h">
+              <div class="n-panel-head">
+                <h2 class="n-panel-title" id="chunks-h">Chunk map</h2>
+                <button type="button" class="n-btn n-btn--ghost n-btn--sm explain" aria-expanded="false" aria-controls="help-chunks">How to read this</button>
+              </div>
+              <div class="n-panel-body n-stack" style="--n-gap: var(--n-space-3)">
+                <p class="explain-text" id="help-chunks" hidden>
+                  This is your document, cut up. Chunks alternate between two shades so you can see
+                  where one ends and the next begins. Where two chunks share text (the overlap), that
+                  text gets a third, stronger shade. After you search, retrieved chunks get an
+                  outline. Chunks are cut at an exact character count, so a cut can land mid-word.
+                  That is how simple fixed-size chunking behaves.
+                </p>
+                <p class="legend n-small">
+                  <span><span class="swatch a"></span>Even chunk</span>
+                  <span><span class="swatch b"></span>Odd chunk</span>
+                  <span><span class="swatch ov"></span>Overlap</span>
+                  <span><span class="swatch picked-sw"></span>Retrieved</span>
+                </p>
+                <div id="doc-view" class="doc-view" tabindex="0" aria-label="Document split into chunks"></div>
+              </div>
+            </section>
+
+            <section class="n-panel" aria-labelledby="ask-h">
+              <div class="n-panel-head">
+                <h2 class="n-panel-title" id="ask-h">Ask a question</h2>
+                <button type="button" class="n-btn n-btn--ghost n-btn--sm explain" aria-expanded="false" aria-controls="help-ask">What happens?</button>
+              </div>
+              <div class="n-panel-body n-stack" style="--n-gap: var(--n-space-3)">
+                <p class="explain-text" id="help-ask" hidden>
+                  Your question is compared against every chunk in two different ways, and each way
+                  returns its 3 best chunks. Change the sliders after searching and the results
+                  update, so you can see how chunking changes what is found.
+                </p>
+                <form id="ask-form" class="n-field">
+                  <label class="n-label" for="question">Question</label>
+                  <div class="ask-row">
+                    <input id="question" class="n-input" type="text" placeholder="For example: How do bees cool the hive?" autocomplete="off" />
+                    <button type="submit" class="n-btn">Search chunks</button>
+                  </div>
+                </form>
+                <div class="n-cluster" id="chips" aria-label="Sample questions"></div>
+                <p class="n-hint" id="chips-hint" hidden>
+                  The sample questions only fit the sample document. Ask your own question about your
+                  text.
+                </p>
+              </div>
+            </section>
+
+            <div class="n-split" style="--n-gap: var(--n-space-6)">
+              <section class="n-panel" aria-labelledby="kw-h">
+                <div class="n-panel-head">
+                  <h2 class="n-panel-title" id="kw-h">Keyword search</h2>
+                  <div class="n-cluster">
+                    <span class="n-tag n-tag--mono">BM25</span>
+                    <button type="button" class="n-btn n-btn--ghost n-btn--sm explain" aria-expanded="false" aria-controls="help-kw">How to read this</button>
+                  </div>
+                </div>
+                <div class="n-panel-body n-stack" style="--n-gap: var(--n-space-3)">
+                  <p class="n-small" style="margin: 0">
+                    Keyword search matches exact words: it finds chunks containing the same words as
+                    your question, and has no idea that different words can mean the same thing.
+                  </p>
+                  <p class="explain-text" id="help-kw" hidden>
+                    <strong>Score:</strong> BM25 adds up points for each question word found in a
+                    chunk. Rare words earn more than common ones, repeats help with diminishing
+                    returns, and shorter chunks get a small boost. There's no maximum, so only
+                    compare scores within one search; the bar is relative to the top result.<br />
+                    <strong>Highlighted words</strong> are the exact matches that earned the score.
+                    Words like "the" and "of" are ignored, and "bee" does not match "bees" because
+                    there is no word-stem handling. No highlights means no match.
+                  </p>
+                  <div id="kw-results"></div>
+                </div>
+              </section>
+
+              <section class="n-panel" aria-labelledby="em-h">
+                <div class="n-panel-head">
+                  <h2 class="n-panel-title" id="em-h">Meaning search</h2>
+                  <div class="n-cluster">
+                    <span class="n-tag n-tag--mono">Embeddings</span>
+                    <button type="button" class="n-btn n-btn--ghost n-btn--sm explain" aria-expanded="false" aria-controls="help-em">How to read this</button>
+                  </div>
+                </div>
+                <div class="n-panel-body n-stack" style="--n-gap: var(--n-space-3)">
+                  <p class="n-small" style="margin: 0">
+                    Embeddings match meaning: your question and every chunk become lists of numbers,
+                    and the closest ones win, even when they share no words at all.
+                  </p>
+                  <p class="explain-text" id="help-em" hidden>
+                    <strong>Score:</strong> cosine similarity between the question's numbers and the
+                    chunk's numbers, from about 0 (unrelated) to 1 (same meaning). The bar shows the
+                    score on that scale. Exact values matter less than the ranking.<br />
+                    <strong>No highlighted words</strong>, because the match isn't about words. It
+                    may pick a chunk that shares none of your words, which keyword search can never
+                    do. It can also pick something merely on the same topic, so check the text.
+                  </p>
+                  <div id="model-status" class="model-status" role="status"></div>
+                  <div id="em-results"></div>
+                </div>
+              </section>
             </div>
-            <p class="note">
-              Keyword search matches exact words: it finds chunks containing the same words as your
-              question, and has no idea that different words can mean the same thing.
-            </p>
-            <p class="hint" id="help-kw" hidden>
-              <strong>Score:</strong> BM25 adds up points for each question word found in a chunk.
-              Rare words earn more than common ones, repeats help with diminishing returns, and
-              shorter chunks get a small boost. There's no maximum, so only compare scores within
-              one search; the bar is relative to the top result.<br />
-              <strong>Highlighted words</strong> are the exact matches that earned the score. Words
-              like "the" and "of" are ignored, and "bee" does not match "bees" because there is no
-              word-stem handling. No highlights means no match.
-            </p>
-            <div id="kw-results" class="results"></div>
           </div>
-          <div class="results-col">
-            <div class="panel-head">
-              <h3>Meaning search <small>(embeddings)</small></h3>
-              <button type="button" class="help" aria-expanded="false" aria-controls="help-em" aria-label="How do I read meaning results?">?</button>
+
+          <aside id="guide" class="guide n-panel" aria-label="Guide">
+            <div class="n-panel-head">
+              <h2 class="n-panel-title">Guide</h2>
+              <button type="button" id="guide-close" class="n-btn n-btn--ghost n-btn--sm guide-close">Close</button>
             </div>
-            <p class="note">
-              Embeddings match meaning: your question and every chunk become lists of numbers, and
-              the closest ones win, even when they share no words at all.
-            </p>
-            <p class="hint" id="help-em" hidden>
-              <strong>Score:</strong> cosine similarity between the question's numbers and the
-              chunk's numbers, from about 0 (unrelated) to 1 (same meaning). The bar shows the
-              score on that scale. Exact values matter less than the ranking.<br />
-              <strong>No highlighted words</strong>, because the match isn't about words. It may pick
-              a chunk that shares none of your words, which keyword search can never do. It can also
-              pick something merely on the same topic, so check the text.
-            </p>
-            <div id="model-status" class="model-status" role="status"></div>
-            <div id="em-results" class="results"></div>
-          </div>
+            <div class="n-panel-body">
+              <div class="n-tabs">
+                <div class="n-tablist" role="tablist" aria-label="Guide sections">
+                  <button class="n-tab" role="tab" id="tab-btn-howto" aria-selected="true" aria-controls="tab-howto">How to use</button>
+                  <button class="n-tab" role="tab" id="tab-btn-features" aria-selected="false" aria-controls="tab-features">Features</button>
+                  <button class="n-tab" role="tab" id="tab-btn-about" aria-selected="false" aria-controls="tab-about">About</button>
+                </div>
+
+                <div class="n-tabpanel guide-text" role="tabpanel" id="tab-howto" aria-labelledby="tab-btn-howto">
+                  <h3>The idea</h3>
+                  <p>
+                    Retrieval-augmented generation (RAG) apps don't feed a whole document to an AI.
+                    They cut it into small pieces called <strong>chunks</strong>, find the chunks
+                    most relevant to a question, and hand only those over. How you cut changes what
+                    gets found. This page lets you change the cut and watch the effect.
+                  </p>
+                  <h3>How to use it</h3>
+                  <ol>
+                    <li><strong>Pick a document.</strong> A sample about honeybees is loaded. Paste your own text over it, or upload a PDF, DOCX, ODT, TXT or Markdown file.</li>
+                    <li><strong>Move the sliders.</strong> Watch the shading in the chunk map shift to show where each chunk starts and ends.</li>
+                    <li><strong>Ask a question.</strong> Type one, or choose a sample question.</li>
+                    <li><strong>Compare the two columns.</strong> Each shows the top 3 chunks, found two different ways, with a score for each.</li>
+                  </ol>
+                  <p>Each <strong>What does this do?</strong> button explains the control above it.</p>
+                  <h3>Things to try</h3>
+                  <ul>
+                    <li>Set chunk size to 50 and ask a question. The answer gets split across chunks, so no single chunk holds it.</li>
+                    <li>Now raise the overlap. Neighbouring chunks share text, so a sentence cut at one edge appears whole in the next chunk.</li>
+                    <li>With the sample document, ask "How do bees cool the hive?" The text says "beat their wings" and "evaporation", not "cool". Compare how the two columns cope.</li>
+                  </ul>
+                </div>
+
+                <div class="n-tabpanel guide-text" role="tabpanel" id="tab-features" aria-labelledby="tab-btn-features" hidden>
+                  <h3>What it does</h3>
+                  <ul>
+                    <li><strong>Paste any text.</strong> A sample document is preloaded so it works straight away.</li>
+                    <li><strong>Upload a file:</strong> PDF, DOCX, ODT, TXT or Markdown, or drop it onto the text box. The text is extracted in your browser, and you can edit it afterwards.</li>
+                    <li><strong>Chunk size slider</strong> (50 to 2,000 characters).</li>
+                    <li><strong>Overlap slider</strong>, in characters.</li>
+                    <li><strong>Chunk map:</strong> your document shaded by chunk, with overlaps in a third shade.</li>
+                    <li><strong>Chunk stats:</strong> total chunks and average size.</li>
+                    <li><strong>Ask a question</strong> and get the top 3 chunks.</li>
+                    <li><strong>Two retrieval modes side by side:</strong> keyword (BM25) and meaning (embeddings).</li>
+                    <li><strong>Scores on every result,</strong> with a bar to compare at a glance.</li>
+                    <li><strong>Matched words highlighted</strong> in keyword results.</li>
+                    <li><strong>Retrieved chunks outlined</strong> in the chunk map.</li>
+                    <li><strong>Live updates:</strong> results refresh as you move the sliders.</li>
+                    <li><strong>Plain-English notes</strong> under each mode, and an explanation behind every control.</li>
+                    <li><strong>Loading indicator</strong> while the model downloads on your first visit.</li>
+                    <li><strong>Private:</strong> runs entirely in your browser, with no server or API key.</li>
+                    <li><strong>Works on desktop and mobile,</strong> in light or dark mode.</li>
+                  </ul>
+                  <h3>What it doesn't do</h3>
+                  <ul>
+                    <li>Generate answers. It only retrieves chunks, so no language model is involved.</li>
+                    <li>Read old-style <code>.doc</code> files (save as .docx first) or scanned PDFs, which are just images with no text to extract.</li>
+                  </ul>
+                </div>
+
+                <div class="n-tabpanel guide-text" role="tabpanel" id="tab-about" aria-labelledby="tab-btn-about" hidden>
+                  <h3>About</h3>
+                  <p>
+                    Chunking playground is a teaching tool for people learning RAG who have only
+                    seen chunking in neat tutorials. It shows the step most frameworks hide behind a
+                    default setting, and explains every result in plain language.
+                  </p>
+                  <p>
+                    Everything runs in your browser: no server, no account, no API key. Your text
+                    never leaves your device. The one download is a small embedding model
+                    (<code>all-MiniLM-L6-v2</code>, about 23 MB, from Hugging Face), fetched on your
+                    first visit and cached after that.
+                  </p>
+                  <p>
+                    Keyword search, chunking and similarity scoring are written by hand in plain
+                    JavaScript. Only the embedding model comes from a library
+                    (<a href="https://github.com/huggingface/transformers.js">Transformers.js</a>).
+                  </p>
+                  <p class="n-muted">Version <span class="n-data version"></span></p>
+                </div>
+              </div>
+            </div>
+          </aside>
         </div>
-      </section>
+      </div>
     </main>
-        <aside id="guide" class="guide" aria-label="Guide">
-          <div class="guide-top">
-            <div class="tabs" role="tablist" aria-label="Guide sections">
-              <button type="button" role="tab" id="tab-btn-howto" aria-selected="true" aria-controls="tab-howto">How to use</button>
-              <button type="button" role="tab" id="tab-btn-features" aria-selected="false" aria-controls="tab-features" tabindex="-1">Features</button>
-              <button type="button" role="tab" id="tab-btn-about" aria-selected="false" aria-controls="tab-about" tabindex="-1">About</button>
-            </div>
-            <button type="button" id="guide-close" class="guide-close" aria-label="Close guide">&times;</button>
-          </div>
 
-          <div class="guide-body">
-            <section id="tab-howto" role="tabpanel" aria-labelledby="tab-btn-howto">
-              <h2>The idea</h2>
-              <p>
-                Retrieval-augmented generation (RAG) apps don't feed a whole document to an AI. They
-                cut it into small pieces called <strong>chunks</strong>, find the chunks most
-                relevant to a question, and hand only those over. How you cut changes what gets
-                found. This page lets you change the cut and watch the effect.
-              </p>
-              <h2>How to use it</h2>
-              <ol>
-                <li><strong>Pick a document.</strong> A sample about honeybees is loaded. Paste your own text over it, or upload a PDF, DOCX, ODT, TXT or Markdown file.</li>
-                <li><strong>Move the sliders.</strong> Watch the colours in step 2 shift to show where each chunk starts and ends.</li>
-                <li><strong>Ask a question.</strong> Type one, or click a sample question.</li>
-                <li><strong>Compare the two columns.</strong> Each shows the top 3 chunks, found two different ways, with a score for each.</li>
-              </ol>
-              <p>Look for the <span class="help-demo">?</span> buttons: each one explains the thing next to it.</p>
-              <h2>Things to try</h2>
-              <ul>
-                <li>Set chunk size to 50 and ask a question. The answer gets split across chunks, so no single chunk holds it.</li>
-                <li>Now raise the overlap. Neighbouring chunks share text, so a sentence cut at one edge appears whole in the next chunk.</li>
-                <li>With the sample document, ask "How do bees cool the hive?" The text says "beat their wings" and "evaporation", not "cool". Compare how the two columns cope.</li>
-              </ul>
-            </section>
-
-            <section id="tab-features" role="tabpanel" aria-labelledby="tab-btn-features" hidden>
-              <h2>What it does</h2>
-              <ul class="features">
-                <li><strong>Paste any text.</strong> A sample document is preloaded so it works straight away.</li>
-                <li><strong>Upload a file:</strong> PDF, DOCX, ODT, TXT or Markdown, or drop it onto the text box. The text is extracted in your browser, and you can edit it afterwards.</li>
-                <li><strong>Chunk size slider</strong> (50–2,000 characters).</li>
-                <li><strong>Overlap slider</strong>, in characters.</li>
-                <li><strong>Chunk map:</strong> your document coloured by chunk, with overlaps in a third colour.</li>
-                <li><strong>Chunk stats:</strong> total chunks and average size.</li>
-                <li><strong>Ask a question</strong> and get the top 3 chunks.</li>
-                <li><strong>Two retrieval modes side by side:</strong> keyword (BM25) and meaning (embeddings).</li>
-                <li><strong>Scores on every result,</strong> with a bar to compare at a glance.</li>
-                <li><strong>Matched words highlighted</strong> in keyword results.</li>
-                <li><strong>Retrieved chunks outlined</strong> in the chunk map.</li>
-                <li><strong>Live updates:</strong> results refresh as you move the sliders.</li>
-                <li><strong>Plain-English notes</strong> under each mode, and a <span class="help-demo">?</span> on every control.</li>
-                <li><strong>Loading indicator</strong> while the model downloads on your first visit.</li>
-                <li><strong>Private:</strong> runs entirely in your browser, with no server or API key.</li>
-                <li><strong>Works on desktop and mobile,</strong> in light or dark mode.</li>
-              </ul>
-              <h2>What it doesn't do</h2>
-              <ul>
-                <li>Generate answers. It only retrieves chunks, so no language model is involved.</li>
-                <li>Read old-style <code>.doc</code> files (save as .docx first) or scanned PDFs, which are just images with no text to extract.</li>
-              </ul>
-            </section>
-
-            <section id="tab-about" role="tabpanel" aria-labelledby="tab-btn-about" hidden>
-              <h2>About</h2>
-              <p>
-                Chunking Playground is a teaching tool for people learning RAG who have only seen
-                chunking in neat tutorials. It shows the step most frameworks hide behind a default
-                setting, and explains every result in plain language.
-              </p>
-              <p>
-                Everything runs in your browser: no server, no account, no API key. Your text never
-                leaves your device. The one download is a small embedding model
-                (<code>all-MiniLM-L6-v2</code>, about 23 MB, from Hugging Face), fetched on your
-                first visit and cached after that.
-              </p>
-              <p>
-                Keyword search, chunking and similarity scoring are written by hand in plain
-                JavaScript. Only the embedding model comes from a library
-                (<a href="https://github.com/huggingface/transformers.js" target="_blank" rel="noopener">Transformers.js</a>).
-              </p>
-              <p>
-                Made by <a href="https://ajayiot.com" rel="noopener">S. Teniola Ajayi <span class="st-arrow">↗</span></a>
-                (ajayiot.com). Open source under the MIT licence.
-              </p>
-              <p class="muted data">Version <span class="version"></span></p>
-            </section>
-          </div>
-        </aside>
-    </div>
     <div id="backdrop" class="backdrop" hidden></div>
 
-    <footer class="site-footer">
-      <div class="footer-inner">
-        <p class="small">
-          Runs entirely in your browser. No server, no API key. Retrieval only: nothing here
-          generates answers.
-        </p>
-        <p class="small">
-          Made by <a href="https://ajayiot.com" rel="noopener">S. Teniola Ajayi <span class="st-arrow">↗</span></a>
-        </p>
-        <p class="data">
-          v<span class="version"></span> · MIT licence ·
-          <button type="button" id="theme-toggle" class="st-btn st-btn--link" aria-label="Switch colour theme">Theme</button>
-        </p>
+    <footer class="n-footer">
+      <div class="n-container n-footer-inner">
+        <div class="n-footer-meta">
+          <span>Chunking playground</span>
+          <span class="n-badge" data-status="experiment">Experiment</span>
+          <span class="n-data">v<span class="version"></span></span>
+          <a href="https://github.com/ajayita/Chunking-Playground">Source on GitHub ↗</a>
+          <span>MIT licence</span>
+        </div>
+        <a class="n-signature" href="https://ajayiot.com"><svg class="n-signature-mark" viewBox="0 0 64 64" aria-hidden="true"><rect class="g" x="0" y="14" width="14" height="14"/><rect class="g" x="18" y="14" width="14" height="14"/><rect class="g" x="0" y="32" width="14" height="14"/><rect class="g" x="18" y="32" width="14" height="14"/><rect class="g" x="36" y="32" width="14" height="14"/><rect class="g" x="0" y="50" width="14" height="14"/><rect class="g" x="18" y="50" width="14" height="14"/><rect class="g" x="36" y="50" width="14" height="14"/><rect class="b" x="50" y="0" width="14" height="14"/></svg><span class="n-signature-name">Built by S. Teniola Ajayi</span><span class="n-signature-url">ajayiot.com</span></a>
       </div>
     </footer>
 
